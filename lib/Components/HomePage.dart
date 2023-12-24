@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:weather/Components/About.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -13,18 +14,37 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final TextEditingController search = TextEditingController();
   var output = "";
+  bool isLoading = false;
 
   Future<void> setWeather() async {
+    const apiKey = "5b0cf8dc7a67325da249436a01c3caae";
+
     try {
-      final response = await http.get(Uri.parse(
-          "https://api.openweathermap.org/data/2.5/weather?q=${search.text}&appid=5b0cf8dc7a67325da249436a01c3caae&units=metric"));
-      print('Response status: ${response.statusCode}');
-      final apiData = ApiData.fromJson(json.decode(response.body));
       setState(() {
-        output = apiData.getData();
+        isLoading = true;
       });
+
+      final response = await http.get(Uri.parse(
+          "https://api.openweathermap.org/data/2.5/weather?q=${search.text}&appid=$apiKey&units=metric"));
+
+      if (response.statusCode == 200) {
+        final apiData = ApiData.fromJson(json.decode(response.body));
+        setState(() {
+          output = apiData.getData();
+        });
+      } else {
+        setState(() {
+          output = "Error: ${response.statusCode}";
+        });
+      }
     } catch (err) {
-      print(err);
+      setState(() {
+        output = "No results found. Error: $err";
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -45,13 +65,18 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Image.network(
+              "https://png.pngtree.com/png-clipart/20210418/original/pngtree-yellow-minimalist-cute-cartoon-sun-cloud-png-image_6243226.jpg",
+              scale: 5,
+            ),
+            const Padding(padding: EdgeInsets.all(10)),
             const Text(
-              "Hi,welcome to my weather app",
+              "Hi, welcome to my weather app",
               style: TextStyle(fontSize: 32),
             ),
             const Padding(padding: EdgeInsets.all(10)),
             Text(
-              output,
+              isLoading ? "Loading..." : output,
               style: const TextStyle(fontSize: 32),
             ),
             Padding(
@@ -64,13 +89,20 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             ElevatedButton(
-              onPressed: () {
-                setWeather();
-              },
+              onPressed: isLoading ? null : () => setWeather(),
               child: const Text("Search"),
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const AboutPage(),
+          ),
+        ),
+        hoverColor: Colors.yellow,
+        child: const Icon(Icons.info_outline),
       ),
     );
   }
@@ -87,6 +119,6 @@ class ApiData {
   }
 
   String getData() {
-    return "It's ${temperature.round().toString()}° celcius in $location";
+    return "It's ${temperature.round().toString()}° Celsius in $location";
   }
 }
