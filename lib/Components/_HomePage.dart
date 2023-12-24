@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:weather/Components/About.dart';
+import 'package:weather/Components/_About.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -111,14 +111,31 @@ class _HomePageState extends State<HomePage> {
 class ApiData {
   late String location;
   late double temperature;
+  late List<String> weather;
+  late double windspeed;
+  late String description;
+  late String country;
 
-  ApiData({required this.location, required this.temperature});
+  ApiData(
+      {required this.location,
+      required this.description,
+      required this.temperature,
+      required this.weather,
+      required this.windspeed,
+      required this.country});
 
   factory ApiData.fromJson(Map<String, dynamic> json) {
-    return ApiData(location: json['name'], temperature: (json['main']['temp']));
+    return ApiData(
+        location: json['name'],
+        description: json["weather"][0]["description"],
+        temperature: (json['main']['temp']),
+        weather: [(json["weather"][0]["main"])],
+        windspeed: json["wind"]["speed"],
+        country: json["sys"]["country"]);
   }
 
   String getData() {
-    return "It's ${temperature.round().toString()}° Celsius in $location";
+    String weatherDescription = weather.join(" , ");
+    return "$weatherDescription, more like $description\nIt's ${temperature.round().toString()}° Celsius in $location\n Wind Speed : $windspeed m \n in $country";
   }
 }
