@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:weather/Components/_About.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -149,21 +150,5 @@ class ApiData {
   String getData() {
     String weatherDescription = weather.join(" , ");
     return "$weatherDescription, more like $description\nIt's ${temperature.round().toString()}° Celsius in $location\n Wind Speed : $windspeed m \n in $country";
-  }
-}
-
-class AboutPage extends StatelessWidget {
-  const AboutPage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("About"),
-      ),
-      body: const Center(
-        child: Text("This is the about page."),
-      ),
-    );
   }
 }
