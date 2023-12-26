@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:weather/Components/_About.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -13,6 +12,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController search = TextEditingController();
+
   var output = "";
   bool isLoading = false;
 
@@ -29,12 +29,22 @@ class _HomePageState extends State<HomePage> {
 
       if (response.statusCode == 200) {
         final apiData = ApiData.fromJson(json.decode(response.body));
-        setState(() {
-          output = apiData.getData();
-        });
+        if (search.text != "") {
+          setState(() {
+            output = apiData.getData();
+          });
+        } else {
+          setState(() {
+            output = "Please enter a city";
+          });
+        }
       } else {
         setState(() {
-          output = "Error: ${response.statusCode}";
+          if (response.statusCode == 400) {
+            output = "Please enter City Name";
+          } else {
+            output = "Something went wrong";
+          }
         });
       }
     } catch (err) {
@@ -116,26 +126,44 @@ class ApiData {
   late String description;
   late String country;
 
-  ApiData(
-      {required this.location,
-      required this.description,
-      required this.temperature,
-      required this.weather,
-      required this.windspeed,
-      required this.country});
+  ApiData({
+    required this.location,
+    required this.description,
+    required this.temperature,
+    required this.weather,
+    required this.windspeed,
+    required this.country,
+  });
 
   factory ApiData.fromJson(Map<String, dynamic> json) {
     return ApiData(
-        location: json['name'],
-        description: json["weather"][0]["description"],
-        temperature: (json['main']['temp']),
-        weather: [(json["weather"][0]["main"])],
-        windspeed: json["wind"]["speed"],
-        country: json["sys"]["country"]);
+      location: json['name'],
+      description: json["weather"][0]["description"],
+      temperature: (json['main']['temp']),
+      weather: [(json["weather"][0]["main"])],
+      windspeed: json["wind"]["speed"],
+      country: json["sys"]["country"],
+    );
   }
 
   String getData() {
     String weatherDescription = weather.join(" , ");
     return "$weatherDescription, more like $description\nIt's ${temperature.round().toString()}° Celsius in $location\n Wind Speed : $windspeed m \n in $country";
+  }
+}
+
+class AboutPage extends StatelessWidget {
+  const AboutPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("About"),
+      ),
+      body: const Center(
+        child: Text("This is the about page."),
+      ),
+    );
   }
 }
