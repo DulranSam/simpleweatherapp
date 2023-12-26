@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:weather/Components/Secondary.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({Key? key}) : super(key: key);
@@ -25,10 +25,21 @@ class AboutPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                _launchURL("https://veloxal.netlify.app/");
+                // _launchURL("https://veloxal.netlify.app/");
+                print("Needs to redirect to my website");
               },
               child: const Text("To learn more click here"),
             ),
+            FloatingActionButton(
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) {
+                    return const SecondPage();
+                  },
+                ));
+              },
+              child: const Icon(Icons.add),
+            )
           ],
         ),
       ),
@@ -36,10 +47,10 @@ class AboutPage extends StatelessWidget {
   }
 }
 
-_launchURL(String url) async {
-  if (await canLaunch(url)) {
-    await launch(url);
-  } else {
-    throw 'Could not launch $url';
-  }
-}
+// _launchURL(String url) async {
+//   if (await canLaunch(url)) {
+//     await launch(url);
+//   } else {
+//     throw 'Could not launch $url';
+//   }
+// }

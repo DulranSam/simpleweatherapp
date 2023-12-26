@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage> {
 
       if (response.statusCode == 200) {
         final apiData = ApiData.fromJson(json.decode(response.body));
-        if (search.text != "") {
+        if (search.text.isNotEmpty) {
           setState(() {
             output = apiData.getData();
           });
@@ -42,9 +42,9 @@ class _HomePageState extends State<HomePage> {
       } else {
         setState(() {
           if (response.statusCode == 400) {
-            output = "Please enter City Name";
+            output = "Please enter a valid city name";
           } else {
-            output = "Something went wrong";
+            output = "Something went wrong. Error: ${response.statusCode}";
           }
         });
       }
@@ -58,6 +58,9 @@ class _HomePageState extends State<HomePage> {
       });
     }
   }
+
+  int currentIndex = 0;
+  List<Widget> pages = const [HomePage(), AboutPage()];
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +80,7 @@ class _HomePageState extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.network(
-              "https://png.pngtree.com/png-clipart/20210418/original/pngtree-yellow-minimalist-cute-cartoon-sun-cloud-png-image_6243226.jpg",
+              "https://static.vecteezy.com/system/resources/thumbnails/022/823/508/original/sunny-and-rainy-on-white-background-weather-animated-icon-video.jpg",
               scale: 5,
             ),
             const Padding(padding: EdgeInsets.all(10)),
@@ -86,21 +89,30 @@ class _HomePageState extends State<HomePage> {
               style: TextStyle(fontSize: 32),
             ),
             const Padding(padding: EdgeInsets.all(10)),
-            Text(
-              isLoading ? "Loading..." : output,
-              style: const TextStyle(fontSize: 32),
+            Card(
+              margin: const EdgeInsets.all(25),
+              child: Column(children: [
+                Text(
+                  isLoading ? "Loading..." : output,
+                  style: const TextStyle(fontSize: 32),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: TextField(
+                    controller: search,
+                    style: const TextStyle(),
+                    decoration:
+                        const InputDecoration(hintText: "Search by location"),
+                  ),
+                ),
+              ]),
             ),
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: TextField(
-                controller: search,
-                style: const TextStyle(),
-                decoration:
-                    const InputDecoration(hintText: "Search by location"),
-              ),
-            ),
+            const Padding(padding: EdgeInsets.all(10)),
             ElevatedButton(
               onPressed: isLoading ? null : () => setWeather(),
+              onLongPress: () {
+                print("Emergency?");
+              },
               child: const Text("Search"),
             ),
           ],
@@ -114,6 +126,20 @@ class _HomePageState extends State<HomePage> {
         ),
         hoverColor: Colors.yellow,
         child: const Icon(Icons.info_outline),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.yellow,
+        currentIndex: currentIndex,
+        onTap: (index) {
+          setState(() {
+            currentIndex = index;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.question_answer), label: "About")
+        ],
       ),
     );
   }
